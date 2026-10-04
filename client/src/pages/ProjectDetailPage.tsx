@@ -1,0 +1,414 @@
+import React, { useState, useEffect } from 'react';
+import {
+  Title,
+  Text,
+  Group,
+  Stack,
+  Tabs,
+  Badge,
+  Button,
+  ActionIcon,
+  Progress,
+  Paper,
+  Box,
+  CopyButton,
+  Tooltip,
+  Loader,
+  Center,
+  Select,
+} from '@mantine/core';
+import {
+  KanbanSquare,
+  GitCommit,
+  UploadCloud,
+  Settings,
+  Share2,
+  ExternalLink,
+  Check,
+  Copy,
+  Calendar,
+  FolderGit2,
+  ArrowLeft,
+  Trash2,
+} from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Project, Task, Asset, Client, TaskStatus, TaskPriority, ProjectStatus } from '../types';
+import { api } from '../api/client';
+import { KanbanBoard } from '../components/KanbanBoard';
+import { GitHubTimeline } from '../components/GitHubTimeline';
+import { AssetVault } from '../components/AssetVault';
+import { TaskModal } from '../components/TaskModal';
+import { notifications } from '@mantine/notifications';
+
+interface ProjectDetailPageProps {
+  clients: Client[];
+  onProjectUpdated: () => void;
+  onProjectDeleted: (id: number) => void;
+}
+
+export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
+  clients,
+  onProjectUpdated,
+  onProjectDeleted,
+}) => {
+  const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const projectId = parseInt(id || '', 10);
+
+  const [project, setProject] = useState<Project | null>(null);
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [activeTab, setActiveTab] = useState<string | null>('board');
+
+  // Task Modal state
+  const [taskModalOpened, setTaskModalOpened] = useState<boolean>(false);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [defaultTaskStatus, setDefaultTaskStatus] = useState<TaskStatus>('todo');
+
+  const fetchProjectData = async () => {
+    if (isNaN(projectId)) return;
+    setLoading(true);
+    try {
+      const [projRes, tasksRes, assetsRes] = await Promise.all([
+        api.get(`/projects/${projectId}`),
+        api.get(`/projects/${projectId}/tasks`),
+        api.get(`/projects/${projectId}/assets`),
+      ]);
+
+      if (projRes.data?.success) {
+        setProject(projRes.data.data);
+      }
+      if (tasksRes.data?.success) {
+        setTasks(tasksRes.data.data);
+      }
+      if (assetsRes.data?.success) {
+        setAssets(assetsRes.data.data);
+      }
+    } catch (err: any) {
+      notifications.show({
+        title: 'Error',
+        message: 'Could not load project details',
+        color: 'red',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProjectData();
+  }, [projectId]);
+
+  const handleStatusChange = async (newStatus: ProjectStatus) => {
+    if (!project) return;
+    setProject({ ...project, status: newStatus });
+    try {
+      await api.patch(`/projects/${project.id}`, { status: newStatus });
+      onProjectUpdated();
+      notifications.show({
+        title: 'Status Updated',
+        message: `Project marked as ${newStatus}`,
+        color: 'teal',
+      });
+    } catch {
+      fetchProjectData();
+    }
+  };
+
+  const handleOpenTaskModal = (task?: Task, defaultStatus: TaskStatus = 'todo') => {
+    setEditingTask(task || null);
+    setDefaultTaskStatus(defaultStatus);
+    setTaskModalOpened(true);
+  };
+
+  const handleSaveTask = async (taskData: {
+    title: string;
+    description: string;
+    status: TaskStatus;
+    priority: TaskPriority;
+    is_client_visible: boolean;
+    due_date?: string | null;
+  }) => {
+    try {
+      if (editingTask) {
+        const res = await api.patch(`/tasks/${editingTask.id}`, taskData);
+        if (res.data?.success && res.data.data) {
+          setTasks(tasks.map((t) => (t.id === editingTask.id ? res.data.data : t)));
+        }
+      } else {
+        const res = await api.post(`/projects/${projectId}/tasks`, taskData);
+        if (res.data?.success && res.data.data) {
+          setTasks([...tasks, res.data.data]);
+        }
+      }
+      onProjectUpdated();
+      notifications.show({
+        title: 'Success',
+        message: editingTask ? 'Task updated' : 'Task created',
+        color: 'teal',
+      });
+    } catch (err: any) {
+      notifications.show({
+        title: 'Error',
+        message: err.response?.data?.error || 'Could not save task',
+        color: 'red',
+      });
+    }
+  };
+
+  const handleDeleteTask = async (taskId: number) => {
+    try {
+      await api.delete(`/tasks/${taskId}`);
+      setTasks(tasks.filter((t) => t.id !== taskId));
+      onProjectUpdated();
+      notifications.show({
+        title: 'Task Deleted',
+        message: 'Task removed from project',
+        color: 'teal',
+      });
+    } catch {
+      notifications.show({
+        title: 'Error',
+        message: 'Could not delete task',
+        color: 'red',
+      });
+    }
+  };
+
+  const handleDeleteProject = async () => {
+    if (!project) return;
+    if (window.confirm('Are you sure you want to delete this project and all associated tasks/files?')) {
+      try {
+        await api.delete(`/projects/${project.id}`);
+        onProjectDeleted(project.id);
+        navigate('/');
+        notifications.show({
+          title: 'Project Deleted',
+          message: 'Project has been removed',
+          color: 'teal',
+        });
+      } catch {
+        notifications.show({
+          title: 'Error',
+          message: 'Could not delete project',
+          color: 'red',
+        });
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <Center p={80}>
+        <Loader size="lg" color="indigo" />
+      </Center>
+    );
+  }
+
+  if (!project) {
+    return (
+      <Paper withBorder p="xl" radius="md" style={{ textAlign: 'center' }}>
+        <Text size="lg" fw={700}>
+          Project Not Found
+        </Text>
+        <Button mt="md" variant="light" color="indigo" onClick={() => navigate('/')}>
+          Return to Dashboard
+        </Button>
+      </Paper>
+    );
+  }
+
+  const client = clients.find((c) => c.id === project.client_id);
+  const portalUrl = client?.share_token
+    ? `${window.location.origin}/portal/${client.share_token}`
+    : null;
+
+  const completedCount = tasks.filter((t) => t.status === 'done').length;
+  const progressPct = tasks.length > 0 ? Math.round((completedCount / tasks.length) * 100) : 0;
+
+  return (
+    <Stack gap="lg">
+      {/* Back button & Title Section */}
+      <Group justify="space-between" align="flex-start" wrap="wrap">
+        <Box>
+          <Button
+            variant="subtle"
+            color="gray"
+            size="xs"
+            leftSection={<ArrowLeft size={14} />}
+            onClick={() => navigate('/')}
+            mb={6}
+          >
+            All Projects
+          </Button>
+
+          <Group gap="xs" mb={4}>
+            <Title order={2} fw={800} style={{ letterSpacing: '-0.5px' }}>
+              {project.title}
+            </Title>
+            <Select
+              size="xs"
+              data={[
+                { value: 'active', label: 'Active' },
+                { value: 'completed', label: 'Completed' },
+                { value: 'on_hold', label: 'On Hold' },
+              ]}
+              value={project.status}
+              onChange={(val) => handleStatusChange(val as ProjectStatus)}
+              style={{ width: 120 }}
+            />
+          </Group>
+
+          <Group gap="md">
+            <Text size="sm" c="dimmed">
+              Client:{' '}
+              <Text span fw={600} c="indigo">
+                {project.client_name || client?.name}
+              </Text>
+              {(project.client_company || client?.company) && ` (${project.client_company || client?.company})`}
+            </Text>
+
+            {project.deadline && (
+              <Group gap={4} c="dimmed">
+                <Calendar size={14} />
+                <Text size="xs">Due {new Date(project.deadline).toLocaleDateString()}</Text>
+              </Group>
+            )}
+
+            {project.github_repo && (
+              <Group gap={4} c="dimmed">
+                <FolderGit2 size={14} />
+                <Text size="xs">{project.github_repo}</Text>
+              </Group>
+            )}
+          </Group>
+        </Box>
+
+        <Group gap="xs">
+          {portalUrl && (
+            <CopyButton value={portalUrl} timeout={2000}>
+              {({ copied, copy }) => (
+                <Button
+                  variant="light"
+                  color={copied ? 'teal' : 'indigo'}
+                  size="sm"
+                  leftSection={copied ? <Check size={16} /> : <Share2 size={16} />}
+                  onClick={() => {
+                    copy();
+                    notifications.show({
+                      title: 'Client Portal Link Copied',
+                      message: 'Share this link with your client for zero-login view',
+                      color: 'teal',
+                    });
+                  }}
+                >
+                  {copied ? 'Copied Share Link' : 'Client Share Portal'}
+                </Button>
+              )}
+            </CopyButton>
+          )}
+
+          {portalUrl && (
+            <Tooltip label="Open client view in new tab">
+              <ActionIcon
+                variant="default"
+                size="lg"
+                onClick={() => window.open(portalUrl, '_blank')}
+              >
+                <ExternalLink size={18} />
+              </ActionIcon>
+            </Tooltip>
+          )}
+
+          <Tooltip label="Delete project">
+            <ActionIcon
+              variant="subtle"
+              color="red"
+              size="lg"
+              onClick={handleDeleteProject}
+            >
+              <Trash2 size={18} />
+            </ActionIcon>
+          </Tooltip>
+        </Group>
+      </Group>
+
+      {/* Quick Progress Banner */}
+      <Paper withBorder p="sm" radius="md">
+        <Group justify="space-between" mb={6}>
+          <Text size="xs" fw={700} c="dimmed">
+            Overall Project Health
+          </Text>
+          <Text size="xs" fw={700} c="indigo">
+            {progressPct}% ({completedCount}/{tasks.length} tasks completed)
+          </Text>
+        </Group>
+        <Progress value={progressPct} color="indigo" radius="xl" size="md" />
+      </Paper>
+
+      {/* Tabs */}
+      <Tabs value={activeTab} onChange={setActiveTab} color="indigo">
+        <Tabs.List mb="md">
+          <Tabs.Tab
+            value="board"
+            leftSection={<KanbanSquare size={16} />}
+            rightSection={<Badge size="xs" variant="light">{tasks.length}</Badge>}
+          >
+            Kanban Board
+          </Tabs.Tab>
+
+          <Tabs.Tab
+            value="github"
+            leftSection={<GitCommit size={16} />}
+          >
+            GitHub Activity
+          </Tabs.Tab>
+
+          <Tabs.Tab
+            value="assets"
+            leftSection={<UploadCloud size={16} />}
+            rightSection={<Badge size="xs" variant="light">{assets.length}</Badge>}
+          >
+            Deliverables & Assets
+          </Tabs.Tab>
+        </Tabs.List>
+
+        <Tabs.Panel value="board">
+          <KanbanBoard
+            projectId={project.id}
+            tasks={tasks}
+            onTasksChange={setTasks}
+            onOpenTaskModal={handleOpenTaskModal}
+            onDeleteTask={handleDeleteTask}
+          />
+        </Tabs.Panel>
+
+        <Tabs.Panel value="github">
+          <GitHubTimeline
+            projectId={project.id}
+            githubRepo={project.github_repo}
+          />
+        </Tabs.Panel>
+
+        <Tabs.Panel value="assets">
+          <AssetVault
+            projectId={project.id}
+            assets={assets}
+            onAssetUploaded={(newAsset) => setAssets([newAsset, ...assets])}
+            onAssetDeleted={(deletedId) => setAssets(assets.filter((a) => a.id !== deletedId))}
+          />
+        </Tabs.Panel>
+      </Tabs>
+
+      {/* Task Creation & Edit Modal */}
+      <TaskModal
+        opened={taskModalOpened}
+        onClose={() => setTaskModalOpened(false)}
+        onSubmit={handleSaveTask}
+        task={editingTask}
+        defaultStatus={defaultTaskStatus}
+      />
+    </Stack>
+  );
+};

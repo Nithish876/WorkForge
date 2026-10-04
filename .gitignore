@@ -1,0 +1,10 @@
+node_modules
+/dist
+.env
+.env.*
+
+# Password file (contains sensitive credentials)
+password.txt
+
+# Logs
+npm-debug.log*
