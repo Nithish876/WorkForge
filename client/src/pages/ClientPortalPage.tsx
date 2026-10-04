@@ -11,18 +11,15 @@ import {
   Card,
   SimpleGrid,
   Button,
-  ActionIcon,
   Table,
   Box,
   Divider,
   Loader,
   Center,
-  Tabs,
-  Tooltip,
+  Image,
 } from '@mantine/core';
 import { Dropzone, FileWithPath } from '@mantine/dropzone';
 import {
-  Shield,
   Layers,
   CheckCircle2,
   Clock,
@@ -32,14 +29,11 @@ import {
   File,
   Image as ImageIcon,
   Archive,
-  ExternalLink,
-  Mail,
-  User,
   AlertCircle,
   Check,
 } from 'lucide-react';
 import { useParams } from 'react-router-dom';
-import { PortalData, PortalProject, Asset } from '../types';
+import { PortalData } from '../types';
 import axios from 'axios';
 import { notifications } from '@mantine/notifications';
 
@@ -94,7 +88,7 @@ export const ClientPortalPage: React.FC = () => {
         notifications.show({
           title: 'File Delivered',
           message: `${file.name} successfully shared with your project lead!`,
-          color: 'teal',
+          color: 'green',
           icon: <Check size={16} />,
         });
       } catch (err: any) {
@@ -118,17 +112,17 @@ export const ClientPortalPage: React.FC = () => {
   };
 
   const getFileIcon = (mimeType: string) => {
-    if (mimeType.startsWith('image/')) return <ImageIcon size={18} color="#3b82f6" />;
+    if (mimeType.startsWith('image/')) return <ImageIcon size={18} color="#14a800" />;
     if (mimeType.includes('pdf')) return <FileText size={18} color="#ef4444" />;
-    if (mimeType.includes('zip') || mimeType.includes('tar')) return <Archive size={18} color="#f59e0b" />;
-    return <File size={18} color="#6366f1" />;
+    if (mimeType.includes('zip') || mimeType.includes('tar')) return <Archive size={18} color="#e59000" />;
+    return <File size={18} color="#14a800" />;
   };
 
   if (loading) {
     return (
       <Center mih="100vh">
         <Stack align="center" gap="sm">
-          <Loader size="lg" color="indigo" />
+          <Loader size="lg" color="green" />
           <Text size="sm" c="dimmed">
             Loading your Client Portal...
           </Text>
@@ -140,7 +134,7 @@ export const ClientPortalPage: React.FC = () => {
   if (error || !data) {
     return (
       <Container size="sm" py={100}>
-        <Paper withBorder p="xl" radius="md" style={{ textAlign: 'center' }}>
+        <Paper withBorder p="xl" radius="lg" style={{ textAlign: 'center' }}>
           <AlertCircle size={48} color="#ef4444" style={{ margin: '0 auto 16px' }} />
           <Title order={3} mb={6}>
             Portal Unavailable
@@ -157,22 +151,23 @@ export const ClientPortalPage: React.FC = () => {
     <Box mih="100vh" py="xl" px="md" style={{ backgroundColor: 'var(--bg-app)' }}>
       <Container size="lg">
         {/* Client Portal Header */}
-        <Paper withBorder p="lg" radius="md" mb="xl" className="glass-panel">
+        <Paper withBorder p="lg" radius="lg" mb="xl" className="glass-panel">
           <Group justify="space-between" align="center" wrap="wrap">
             <Group gap="md">
               <Box
                 style={{
                   width: 44,
                   height: 44,
-                  borderRadius: 10,
-                  background: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)',
+                  borderRadius: 12,
+                  background: 'linear-gradient(135deg, #14a800 0%, #108a00 100%)',
+                  color: '#ffffff',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#ffffff',
+                  boxShadow: '0 4px 12px rgba(20, 168, 0, 0.25)',
                 }}
               >
-                <Layers size={22} />
+                <Layers size={22} strokeWidth={2.4} />
               </Box>
 
               <Box>
@@ -181,7 +176,7 @@ export const ClientPortalPage: React.FC = () => {
                     {data.client.name}
                   </Title>
                   {data.client.company && (
-                    <Badge variant="light" color="indigo">
+                    <Badge variant="outline" color="green" radius="xl">
                       {data.client.company}
                     </Badge>
                   )}
@@ -224,7 +219,7 @@ export const ClientPortalPage: React.FC = () => {
                       <Badge
                         size="sm"
                         variant="filled"
-                        color={proj.status === 'completed' ? 'teal' : 'indigo'}
+                        color={proj.status === 'completed' ? 'teal' : 'green'}
                       >
                         {proj.status.toUpperCase()}
                       </Badge>
@@ -249,17 +244,15 @@ export const ClientPortalPage: React.FC = () => {
                       Overall Completion
                     </Text>
                     <Group gap="xs" justify="flex-end" mb={4}>
-                      <Text size="xl" fw={800} c="indigo">
+                      <Text size="xl" fw={800}>
                         {proj.progressPercentage}%
                       </Text>
                     </Group>
                     <Progress
                       value={proj.progressPercentage}
-                      color="indigo"
-                      size="md"
+                      color="green"
+                      size="sm"
                       radius="xl"
-                      striped={proj.status === 'active'}
-                      animated={proj.status === 'active'}
                     />
                   </Box>
                 </Group>
@@ -269,15 +262,15 @@ export const ClientPortalPage: React.FC = () => {
                 {/* Friendly Client Task Lists */}
                 <SimpleGrid cols={{ base: 1, md: 3 }} spacing="lg" mb="xl">
                   {/* What We're Working On */}
-                  <Card withBorder radius="md" p="md">
+                  <Card withBorder radius="lg" p="md">
                     <Group justify="space-between" mb="xs">
                       <Group gap="xs">
-                        <Clock size={16} color="#6366f1" />
+                        <Clock size={16} color="var(--accent-primary)" />
                         <Text fw={700} size="sm">
                           What We're Working On
                         </Text>
                       </Group>
-                      <Badge size="xs" variant="light" color="indigo">
+                      <Badge size="xs" variant="light" color="green" radius="xl">
                         {proj.inProgressTasks.length}
                       </Badge>
                     </Group>
@@ -290,6 +283,17 @@ export const ClientPortalPage: React.FC = () => {
                       ) : (
                         proj.inProgressTasks.map((t) => (
                           <Paper key={t.id} withBorder p="xs" radius="sm">
+                            {t.image_url && (
+                              <Image
+                                src={t.image_url}
+                                height={90}
+                                radius="sm"
+                                fit="cover"
+                                alt={t.title}
+                                mb={6}
+                                fallbackSrc="https://placehold.co/600x300/162f24/ffffff?text=Milestone+Preview"
+                              />
+                            )}
                             <Text size="xs" fw={600}>
                               {t.title}
                             </Text>
@@ -305,15 +309,15 @@ export const ClientPortalPage: React.FC = () => {
                   </Card>
 
                   {/* Under Review */}
-                  <Card withBorder radius="md" p="md">
+                  <Card withBorder radius="lg" p="md">
                     <Group justify="space-between" mb="xs">
                       <Group gap="xs">
-                        <AlertCircle size={16} color="#f59e0b" />
+                        <AlertCircle size={16} color="#e59000" />
                         <Text fw={700} size="sm">
                           Ready for Review
                         </Text>
                       </Group>
-                      <Badge size="xs" variant="light" color="orange">
+                      <Badge size="xs" variant="light" color="yellow" radius="xl">
                         {proj.reviewTasks.length}
                       </Badge>
                     </Group>
@@ -325,7 +329,18 @@ export const ClientPortalPage: React.FC = () => {
                         </Text>
                       ) : (
                         proj.reviewTasks.map((t) => (
-                          <Paper key={t.id} withBorder p="xs" radius="sm">
+                          <Paper key={t.id} withBorder p="xs" radius="md">
+                            {t.image_url && (
+                              <Image
+                                src={t.image_url}
+                                height={90}
+                                radius="md"
+                                fit="cover"
+                                alt={t.title}
+                                mb={6}
+                                fallbackSrc="https://placehold.co/600x300/162f24/ffffff?text=Review+Attachment"
+                              />
+                            )}
                             <Text size="xs" fw={600}>
                               {t.title}
                             </Text>
@@ -336,15 +351,15 @@ export const ClientPortalPage: React.FC = () => {
                   </Card>
 
                   {/* Recently Finished */}
-                  <Card withBorder radius="md" p="md">
+                  <Card withBorder radius="lg" p="md">
                     <Group justify="space-between" mb="xs">
                       <Group gap="xs">
-                        <CheckCircle2 size={16} color="#10b981" />
+                        <CheckCircle2 size={16} color="#14a800" />
                         <Text fw={700} size="sm">
                           Recently Finished
                         </Text>
                       </Group>
-                      <Badge size="xs" variant="light" color="teal">
+                      <Badge size="xs" variant="light" color="green" radius="xl">
                         {proj.completedTasksList.length}
                       </Badge>
                     </Group>
@@ -356,9 +371,20 @@ export const ClientPortalPage: React.FC = () => {
                         </Text>
                       ) : (
                         proj.completedTasksList.map((t) => (
-                          <Paper key={t.id} withBorder p="xs" radius="sm">
+                          <Paper key={t.id} withBorder p="xs" radius="md">
+                            {t.image_url && (
+                              <Image
+                                src={t.image_url}
+                                height={90}
+                                radius="md"
+                                fit="cover"
+                                alt={t.title}
+                                mb={6}
+                                fallbackSrc="https://placehold.co/600x300/162f24/ffffff?text=Completed+Milestone"
+                              />
+                            )}
                             <Group gap="xs">
-                              <CheckCircle2 size={12} color="#10b981" />
+                              <CheckCircle2 size={12} color="#14a800" />
                               <Text size="xs" fw={600} lineClamp={1}>
                                 {t.title}
                               </Text>
@@ -371,7 +397,7 @@ export const ClientPortalPage: React.FC = () => {
                 </SimpleGrid>
 
                 {/* Client Asset Box: Deliverables & Upload */}
-                <Paper withBorder p="md" radius="md">
+                <Paper withBorder p="md" radius="lg">
                   <Title order={4} fw={700} mb="xs">
                     Deliverables & Shared Documents
                   </Title>
@@ -416,7 +442,7 @@ export const ClientPortalPage: React.FC = () => {
                                 <Badge
                                   size="xs"
                                   variant="light"
-                                  color={asset.uploaded_by === 'client' ? 'teal' : 'indigo'}
+                                  color={asset.uploaded_by === 'client' ? 'teal' : 'green'}
                                 >
                                   {asset.uploaded_by === 'client' ? 'You (Client)' : 'Freelancer'}
                                 </Badge>
@@ -428,8 +454,7 @@ export const ClientPortalPage: React.FC = () => {
                                   target="_blank"
                                   rel="noreferrer"
                                   size="xs"
-                                  variant="light"
-                                  color="indigo"
+                                  variant="default"
                                   leftSection={<Download size={12} />}
                                 >
                                   Download
@@ -451,7 +476,7 @@ export const ClientPortalPage: React.FC = () => {
                     p="md"
                   >
                     <Group justify="center" gap="md" style={{ pointerEvents: 'none' }}>
-                      <UploadCloud size={32} color="#6366f1" />
+                      <UploadCloud size={32} color="#14a800" />
                       <Box style={{ textAlign: 'left' }}>
                         <Text size="sm" fw={600}>
                           Need to supply assets or feedback files?

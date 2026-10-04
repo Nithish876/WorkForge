@@ -9,9 +9,8 @@ import {
   Menu,
   Avatar,
   Box,
-  Badge,
 } from '@mantine/core';
-import { Layers, Sun, Moon, LogOut, User as UserIcon, Shield } from 'lucide-react';
+import { Layers, Sun, Moon, LogOut, User as UserIcon } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 
@@ -36,8 +35,8 @@ export const Header: React.FC<HeaderProps> = ({ opened, toggle }) => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        borderBottom: `1px solid ${isDark ? '#1e293b' : '#e2e8f0'}`,
-        backgroundColor: isDark ? '#0f172a' : '#ffffff',
+        borderBottom: `1px solid var(--border-subtle)`,
+        backgroundColor: 'var(--bg-app)',
       }}
     >
       <Group gap="sm">
@@ -56,61 +55,57 @@ export const Header: React.FC<HeaderProps> = ({ opened, toggle }) => {
         >
           <Box
             style={{
-              width: 34,
-              height: 34,
-              borderRadius: 8,
-              background: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)',
+              width: 36,
+              height: 36,
+              borderRadius: 10,
+              background: 'linear-gradient(135deg, #108a00 0%, #14a800 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               color: '#ffffff',
-              boxShadow: '0 4px 12px rgba(99, 102, 241, 0.3)',
+              boxShadow: '0 4px 14px rgba(20, 168, 0, 0.35)',
             }}
           >
-            <Layers size={18} />
+            <Layers size={18} strokeWidth={2.4} />
           </Box>
           <Box>
-            <Text fw={700} size="md" style={{ letterSpacing: '-0.3px', lineHeight: 1.2 }}>
-              ProjectForge
+            <Text fw={700} size="sm" style={{ letterSpacing: '-0.3px', lineHeight: 1.2 }}>
+              WorkForge
             </Text>
-            <Text size="10px" c="dimmed" fw={500}>
-              Freelance & Business Ops
+            <Text size="11px" c="dimmed" fw={500}>
+              Freelancer & Agency Ops
             </Text>
           </Box>
         </Group>
       </Group>
 
       <Group gap="sm">
-        <Badge
-          variant="light"
-          color="indigo"
-          visibleFrom="md"
-          leftSection={<Shield size={12} />}
-        >
-          Functional MVC Core
-        </Badge>
-
         <ActionIcon
           onClick={() => setColorScheme(isDark ? 'light' : 'dark')}
           variant="default"
           size="lg"
+          radius="xl"
           aria-label="Toggle color scheme"
+          style={{
+            borderColor: 'var(--border-subtle)',
+            backgroundColor: 'var(--bg-surface)',
+          }}
         >
-          {isDark ? <Sun size={18} strokeWidth={1.5} /> : <Moon size={18} strokeWidth={1.5} />}
+          {isDark ? <Sun size={17} strokeWidth={1.7} color="#14a800" /> : <Moon size={17} strokeWidth={1.7} color="#108a00" />}
         </ActionIcon>
 
         {user && (
-          <Menu position="bottom-end" shadow="md" width={200}>
+          <Menu position="bottom-end" shadow="md" width={220} radius="md">
             <Menu.Target>
               <Group gap="xs" style={{ cursor: 'pointer' }}>
-                <Avatar color="indigo" radius="xl" size="sm">
+                <Avatar color="green" radius="xl" size="sm">
                   {user.name.substring(0, 2).toUpperCase()}
                 </Avatar>
                 <Box visibleFrom="sm" style={{ textAlign: 'left' }}>
-                  <Text size="sm" fw={600} lineClamp={1}>
+                  <Text size="xs" fw={600} lineClamp={1}>
                     {user.name}
                   </Text>
-                  <Text size="xs" c="dimmed" lineClamp={1}>
+                  <Text size="10px" c="dimmed" lineClamp={1}>
                     {user.email}
                   </Text>
                 </Box>
@@ -119,8 +114,11 @@ export const Header: React.FC<HeaderProps> = ({ opened, toggle }) => {
 
             <Menu.Dropdown>
               <Menu.Label>Signed in as</Menu.Label>
-              <Menu.Item leftSection={<UserIcon size={14} />} disabled>
-                {user.email}
+              <Menu.Item
+                leftSection={<UserIcon size={14} />}
+                onClick={() => navigate('/profile')}
+              >
+                Profile & Portfolio
               </Menu.Item>
               <Menu.Divider />
               <Menu.Item

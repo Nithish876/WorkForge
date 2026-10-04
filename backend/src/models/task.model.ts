@@ -55,6 +55,7 @@ export const createTask = async (data: {
   sort_order?: number;
   is_client_visible?: boolean;
   due_date?: string | null;
+  image_url?: string | null;
 }): Promise<Task> => {
   const status: TaskStatus = data.status || 'todo';
   const priority: TaskPriority = data.priority || 'medium';
@@ -65,8 +66,8 @@ export const createTask = async (data: {
     const pool = getPool()!;
     const [result]: any = await pool.query(
       `INSERT INTO tasks 
-        (project_id, title, description, status, priority, sort_order, is_client_visible, due_date)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+        (project_id, title, description, status, priority, sort_order, is_client_visible, due_date, image_url)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
       [
         data.project_id,
         data.title.trim(),
@@ -76,6 +77,7 @@ export const createTask = async (data: {
         sortOrder,
         isClientVisible,
         data.due_date || null,
+        data.image_url || null,
       ]
     );
 
@@ -95,6 +97,7 @@ export const createTask = async (data: {
       sort_order: sortOrder,
       is_client_visible: isClientVisible,
       due_date: data.due_date || null,
+      image_url: data.image_url || null,
       created_at: new Date().toISOString(),
     };
     store.tasks.push(created);
@@ -140,6 +143,10 @@ export const updateTask = async (
       fields.push('due_date = ?');
       values.push(data.due_date || null);
     }
+    if (data.image_url !== undefined) {
+      fields.push('image_url = ?');
+      values.push(data.image_url || null);
+    }
 
     if (fields.length > 0) {
       values.push(id);
@@ -159,6 +166,7 @@ export const updateTask = async (
       if (data.sort_order !== undefined) t.sort_order = data.sort_order;
       if (data.is_client_visible !== undefined) t.is_client_visible = data.is_client_visible;
       if (data.due_date !== undefined) t.due_date = data.due_date || null;
+      if (data.image_url !== undefined) t.image_url = data.image_url || null;
     }
   });
 

@@ -7,6 +7,7 @@ import {
   deleteProject,
 } from '../models/project.model';
 import { findClientById } from '../models/client.model';
+import { findCollaborator } from '../models/collaborator.model';
 import { fetchGitHubCommits } from '../utils/github';
 import { sendSuccess, sendError } from '../utils/response';
 
@@ -43,7 +44,18 @@ export const getProject = async (
       return;
     }
 
-    sendSuccess(res, project);
+    const userId = req.user!.id;
+    const isOwner = project.user_id === userId;
+    const collab = await findCollaborator(project.id, userId);
+
+    // Private projects can only be accessed by owner and accepted collaborators (and client via portal)
+    if (project.is_public === false && !isOwner && (!collab || collab.status !== 'accepted')) {
+      sendError(res, 'This project is private. Access is restricted to the project owner and invited collaborators.', 403);
+      return;
+    }
+
+    const userRole = isOwner ? 'owner' : (collab?.role || 'viewer');
+    sendSuccess(res, { ...project, user_role: userRole });
   } catch (error) {
     next(error);
   }
@@ -76,11 +88,13 @@ export const createNewProject = async (
 
     const project = await createProject({
       client_id: parseInt(client_id, 10),
+      user_id: userId,
       title,
       description,
       github_repo,
       status,
       deadline,
+      is_public: req.body.is_public !== undefined ? Boolean(req.body.is_public) : true,
     });
 
     sendSuccess(res, project, 'Project created successfully', 201);

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   Title,
   Text,
@@ -12,20 +12,15 @@ import {
   Tooltip,
   CopyButton,
   Box,
-  SimpleGrid,
-  Card,
 } from '@mantine/core';
 import {
   UserPlus,
-  Share2,
   ExternalLink,
   Copy,
   Check,
-  Building,
-  Mail,
-  FolderKanban,
-  Shield,
   Trash2,
+  Mail,
+  Building,
 } from 'lucide-react';
 import { Client } from '../types';
 import { notifications } from '@mantine/notifications';
@@ -45,7 +40,7 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
     <Stack gap="xl">
       <Group justify="space-between" align="center" wrap="wrap">
         <Box>
-          <Title order={2} fw={800} style={{ letterSpacing: '-0.5px' }}>
+          <Title order={2} fw={700} style={{ letterSpacing: '-0.5px' }}>
             Client Management
           </Title>
           <Text size="sm" c="dimmed">
@@ -55,7 +50,7 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
 
         <Button
           leftSection={<UserPlus size={16} />}
-          color="indigo"
+          color="dark"
           onClick={onOpenNewClient}
         >
           Add Client
@@ -63,8 +58,8 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
       </Group>
 
       {clients.length === 0 ? (
-        <Paper withBorder p={50} radius="md" style={{ textAlign: 'center' }}>
-          <Building size={48} style={{ opacity: 0.3, margin: '0 auto 16px' }} />
+        <Paper withBorder p={50} radius="sm" style={{ textAlign: 'center' }}>
+          <Building size={40} style={{ opacity: 0.3, margin: '0 auto 16px' }} />
           <Title order={4} mb={4}>
             No clients added yet
           </Title>
@@ -73,14 +68,14 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
           </Text>
           <Button
             leftSection={<UserPlus size={16} />}
-            color="indigo"
+            color="dark"
             onClick={onOpenNewClient}
           >
             Add First Client
           </Button>
         </Paper>
       ) : (
-        <Paper withBorder radius="md">
+        <Paper withBorder radius="sm" style={{ backgroundColor: 'var(--bg-card)' }}>
           <Table.ScrollContainer minWidth={640}>
             <Table verticalSpacing="md" highlightOnHover>
               <Table.Thead>
@@ -99,24 +94,27 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
                   return (
                     <Table.Tr key={client.id}>
                       <Table.Td>
-                        <Box>
-                          <Text size="sm" fw={700}>
-                            {client.name}
-                          </Text>
-                          {client.company && (
-                            <Group gap={4} c="dimmed">
-                              <Building size={12} />
-                              <Text size="xs">{client.company}</Text>
-                            </Group>
-                          )}
-                        </Box>
+                        <Group gap="sm">
+                          <Box>
+                            <Text size="sm" fw={600}>
+                              {client.name}
+                            </Text>
+                            {client.company && (
+                              <Text size="xs" c="dimmed">
+                                {client.company}
+                              </Text>
+                            )}
+                          </Box>
+                        </Group>
                       </Table.Td>
 
                       <Table.Td>
                         {client.email ? (
-                          <Group gap={4}>
-                            <Mail size={12} color="#64748b" />
-                            <Text size="xs">{client.email}</Text>
+                          <Group gap={6}>
+                            <Mail size={14} color="var(--text-secondary)" />
+                            <Text size="xs" c="dimmed">
+                              {client.email}
+                            </Text>
                           </Group>
                         ) : (
                           <Text size="xs" c="dimmed">
@@ -126,7 +124,7 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
                       </Table.Td>
 
                       <Table.Td>
-                        <Badge variant="light" color="indigo" size="sm">
+                        <Badge variant="outline" color="dark" size="xs">
                           {client.project_count || 0} Projects
                         </Badge>
                       </Table.Td>
@@ -145,8 +143,7 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
                             {({ copied, copy }) => (
                               <Tooltip label={copied ? 'Copied URL!' : 'Copy Portal Share URL'}>
                                 <Button
-                                  variant="light"
-                                  color={copied ? 'teal' : 'indigo'}
+                                  variant="default"
                                   size="xs"
                                   leftSection={copied ? <Check size={14} /> : <Copy size={14} />}
                                   onClick={() => {
@@ -154,7 +151,7 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
                                     notifications.show({
                                       title: 'Copied',
                                       message: 'Client Portal link copied to clipboard',
-                                      color: 'teal',
+                                      color: 'gray',
                                     });
                                   }}
                                 >
@@ -167,7 +164,7 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
                           <Tooltip label="Open Client Portal in New Tab">
                             <ActionIcon
                               variant="subtle"
-                              color="indigo"
+                              color="gray"
                               size="md"
                               onClick={() => window.open(portalUrl, '_blank')}
                             >
@@ -180,7 +177,15 @@ export const ClientsPage: React.FC<ClientsPageProps> = ({
                               variant="subtle"
                               color="red"
                               size="md"
-                              onClick={() => onDeleteClient(client.id)}
+                              onClick={() => {
+                                if (
+                                  window.confirm(
+                                    `Are you sure you want to delete client "${client.name}" and all associated projects?`
+                                  )
+                                ) {
+                                  onDeleteClient(client.id);
+                                }
+                              }}
                             >
                               <Trash2 size={16} />
                             </ActionIcon>

@@ -1,67 +1,86 @@
 import { createTheme, MantineColorsTuple } from '@mantine/core';
 
-const brandIndigo: MantineColorsTuple = [
-  '#eef2ff',
-  '#e0e7ff',
-  '#c7d2fe',
-  '#a5b4fc',
-  '#818cf8',
-  '#6366f1',
-  '#4f46e5',
-  '#4338ca',
-  '#3730a3',
-  '#312e81',
+// Signature Upwork Green Palette
+const upworkGreen: MantineColorsTuple = [
+  '#f2fbf2',
+  '#e0f7e0',
+  '#bfeec0',
+  '#8de08f',
+  '#4fcb52',
+  '#14a800', // Signature Upwork Emerald Green
+  '#108a00', // Hover
+  '#0d7200', // Dark
+  '#0a5a00',
+  '#074500',
 ];
 
-const slateDark: MantineColorsTuple = [
-  '#f8fafc',
-  '#f1f5f9',
-  '#e2e8f0',
-  '#cbd5e1',
-  '#94a3b8',
-  '#64748b',
-  '#475569',
-  '#334155',
-  '#1e293b',
-  '#0f172a',
+// Deep Forest Dark Mode Palette
+const upworkDark: MantineColorsTuple = [
+  '#f3fbf6',
+  '#d5ede0',
+  '#aed6c0',
+  '#82b99b',
+  '#599774',
+  '#3a7455',
+  '#203f31', // Subtle border
+  '#152d22', // Card surface
+  '#0f2219', // Elevated surface
+  '#091610', // Deep app background
 ];
 
 export const theme = createTheme({
-  primaryColor: 'indigo',
+  primaryColor: 'green',
+  primaryShade: { light: 5, dark: 5 },
   colors: {
-    indigo: brandIndigo,
-    dark: slateDark,
+    green: upworkGreen,
+    dark: upworkDark,
   },
-  fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
+  fontFamily: 'Poppins, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   headings: {
-    fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif',
-    fontWeight: '700',
+    fontFamily: 'Poppins, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+    fontWeight: '600',
   },
   defaultRadius: 'md',
   cursorType: 'pointer',
   components: {
     Button: {
       defaultProps: {
-        radius: 'md',
+        radius: 'xl',
+        color: 'green',
       },
     },
     Card: {
       defaultProps: {
-        radius: 'md',
+        radius: 'lg',
         padding: 'md',
       },
     },
     Paper: {
       defaultProps: {
-        radius: 'md',
+        radius: 'lg',
       },
     },
     Badge: {
       defaultProps: {
-        radius: 'sm',
+        radius: 'xl',
+      },
+    },
+    Modal: {
+      defaultProps: {
+        radius: 'lg',
       },
     },
     TextInput: {
+      defaultProps: {
+        radius: 'md',
+      },
+    },
+    PasswordInput: {
+      defaultProps: {
+        radius: 'md',
+      },
+    },
+    Textarea: {
       defaultProps: {
         radius: 'md',
       },

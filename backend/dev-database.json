@@ -5,10 +5,65 @@
       "name": "Alex Rivers",
       "email": "alex@freelancer.io",
       "password_hash": "$2b$10$WhlKvn.6pFCd/uctV5Ho8e/imLQoo6Hpn1ij1doKNCjiPeJ8tlpoq",
-      "created_at": "2026-10-04T05:39:41.805Z"
+      "created_at": "2026-10-04T05:39:41.805Z",
+      "headline": "Principal Full-Stack Architect & Product Consultant",
+      "bio": "Specializing in high-performance web applications, distributed APIs, and developer tools. 8+ years shipping client applications.",
+      "location": "San Francisco, CA",
+      "website": "https://alexrivers.dev",
+      "github_username": "alexrivers",
+      "twitter_username": "alexrivers_dev",
+      "linkedin_url": "https://linkedin.com/in/alexrivers"
+    },
+    {
+      "id": 2,
+      "name": "Elena Rostova",
+      "email": "elena@workforge.dev",
+      "password_hash": "$2b$10$SYstZrnqiKfh/RB8lnIP3.eukB08arB7HZZSMRHLvzdpUyTPwsxei",
+      "headline": "Senior Frontend Engineer & UI Specialist",
+      "bio": "Design systems advocate, React performance enthusiast, open-source contributor.",
+      "location": "Austin, TX",
+      "website": "https://elenarostova.io",
+      "github_username": "elenarostova",
+      "twitter_username": "elena_ui",
+      "linkedin_url": "https://linkedin.com/in/elenarostova",
+      "created_at": "2026-10-04T15:18:27.961Z"
+    },
+    {
+      "id": 3,
+      "name": "Nithish",
+      "email": "test@admin.com",
+      "password_hash": "$2b$10$JHNVs9L9A5gcDeg9fo1k1.b/B53yR1QOHk6HbwTRqU4vQw7M/tiqi",
+      "created_at": "2026-10-04T15:52:28.722Z"
+    },
+    {
+      "id": 4,
+      "name": "Steve Rogers",
+      "email": "steve@captain.com",
+      "password_hash": "$2b$10$5HDMbkDVOEeZgDPYtzJbhuVKnaWdGP1SVYIH6OzEVse4PToC2YQh2",
+      "created_at": "2026-10-04T15:59:46.321Z"
     }
   ],
   "clients": [
+    {
+      "id": 4,
+      "user_id": 3,
+      "name": "Ravi & Harsha",
+      "email": "contact@flowfoundry.com",
+      "company": "FlowyFoundry",
+      "share_token": "da862b629517a5f265d2820c59183141d302246f17f75085bf3b83c60f2e7070",
+      "created_at": "2026-10-04T15:55:53.915Z",
+      "project_count": 0
+    },
+    {
+      "id": 3,
+      "user_id": 3,
+      "name": "BABKRISH",
+      "email": "contact@cobra.zone",
+      "company": "COBRA",
+      "share_token": "36dec16f654992c721fa656ad2589cf0f7182f2a63471d4d90ac9471e6f93234",
+      "created_at": "2026-10-04T15:53:24.301Z",
+      "project_count": 0
+    },
     {
       "id": 1,
       "user_id": 1,
@@ -30,6 +85,40 @@
   ],
   "projects": [
     {
+      "id": 4,
+      "client_id": 4,
+      "user_id": 3,
+      "title": "ilovesurprises",
+      "description": "I Love Surprises A modern e commerce and affiliate marketplace platform for Cash and Jewelry surprise products, featuring product discovery, collections, customer accounts, affiliate referrals, MLM commissions, rewards, and jewelry appraisal.",
+      "github_repo": "https://github.com/flowfoundryaienterprise/Ilovesurprises-frontend",
+      "status": "active",
+      "deadline": "2026-10-07",
+      "is_public": true,
+      "created_at": "2026-10-04T15:56:53.181Z",
+      "task_count": 0,
+      "completed_task_count": 0,
+      "progress_percentage": 0,
+      "user_role": "owner",
+      "collaborators_count": 0
+    },
+    {
+      "id": 3,
+      "client_id": 3,
+      "user_id": 3,
+      "title": "SECURE NOTES",
+      "description": "Secure Note is an all new modern solution for people to make thier life way easier. security at its peak.",
+      "github_repo": "https://github.com/cobra-techknowledgy/secure-notes",
+      "status": "active",
+      "deadline": "2026-10-12",
+      "is_public": true,
+      "created_at": "2026-10-04T15:54:36.589Z",
+      "task_count": 0,
+      "completed_task_count": 0,
+      "progress_percentage": 0,
+      "user_role": "owner",
+      "collaborators_count": 0
+    },
+    {
       "id": 1,
       "client_id": 1,
       "title": "Enterprise Billing Portal",
@@ -37,7 +126,9 @@
       "github_repo": "facebook/react",
       "status": "active",
       "deadline": "2026-11-15",
-      "created_at": "2026-10-04T05:39:41.807Z"
+      "created_at": "2026-10-04T05:39:41.807Z",
+      "is_public": true,
+      "user_id": 1
     },
     {
       "id": 2,
@@ -47,7 +138,9 @@
       "github_repo": "tailwindlabs/tailwindcss",
       "status": "active",
       "deadline": "2026-12-01",
-      "created_at": "2026-10-04T05:39:41.807Z"
+      "created_at": "2026-10-04T05:39:41.807Z",
+      "is_public": true,
+      "user_id": 1
     }
   ],
   "tasks": [
@@ -70,7 +163,7 @@
       "status": "in_progress",
       "priority": "high",
       "sort_order": 1,
-      "is_client_visible": true,
+      "is_client_visible": false,
       "due_date": "2026-10-18"
     },
     {
@@ -117,14 +210,48 @@
       "is_client_visible": true,
       "due_date": null,
       "created_at": "2026-10-04T06:00:42.174Z"
+    },
+    {
+      "id": 8,
+      "project_id": 4,
+      "title": "MLM comission engine",
+      "description": null,
+      "status": "todo",
+      "priority": "high",
+      "sort_order": 0,
+      "is_client_visible": true,
+      "due_date": "2026-10-07",
+      "image_url": null,
+      "created_at": "2026-10-04T15:58:38.276Z"
     }
   ],
   "assets": [],
   "nextIds": {
-    "users": 2,
-    "clients": 3,
-    "projects": 3,
-    "tasks": 7,
-    "assets": 1
-  }
+    "users": 5,
+    "clients": 5,
+    "projects": 5,
+    "tasks": 9,
+    "assets": 1,
+    "collaborators": 3
+  },
+  "collaborators": [
+    {
+      "id": 1,
+      "project_id": 1,
+      "user_id": 2,
+      "role": "contributor",
+      "status": "accepted",
+      "invited_by": 1,
+      "created_at": "2026-10-04T15:18:27.963Z"
+    },
+    {
+      "id": 2,
+      "project_id": 4,
+      "user_id": 4,
+      "role": "contributor",
+      "status": "accepted",
+      "invited_by": 3,
+      "created_at": "2026-10-04T16:00:00.334Z"
+    }
+  ]
 }

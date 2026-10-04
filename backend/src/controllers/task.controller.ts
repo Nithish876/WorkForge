@@ -1,4 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
+import path from 'path';
+import fs from 'fs';
 import {
   findTasksByProjectId,
   findTaskById,
@@ -11,6 +13,7 @@ import {
 import { findProjectById } from '../models/project.model';
 import { sendSuccess, sendError } from '../utils/response';
 import { TaskStatus } from '../types';
+import { getTaskImagesRoot } from '../middlewares/upload.middleware';
 
 export const getTasks = async (
   req: Request,
@@ -53,7 +56,16 @@ export const createNewTask = async (
       return;
     }
 
-    const { title, description, status, priority, sort_order, is_client_visible, due_date } = req.body;
+    const {
+      title,
+      description,
+      status,
+      priority,
+      sort_order,
+      is_client_visible,
+      due_date,
+      image_url,
+    } = req.body;
 
     if (!title || typeof title !== 'string' || title.trim().length === 0) {
       sendError(res, 'Task title is required', 400);
@@ -69,6 +81,7 @@ export const createNewTask = async (
       sort_order: sort_order !== undefined ? parseInt(sort_order, 10) : 0,
       is_client_visible: is_client_visible !== undefined ? Boolean(is_client_visible) : true,
       due_date,
+      image_url,
     });
 
     sendSuccess(res, task, 'Task created successfully', 201);
@@ -100,6 +113,57 @@ export const updateExistingTask = async (
   } catch (error) {
     next(error);
   }
+};
+
+export const uploadTaskImage = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    if (!req.file) {
+      sendError(res, 'No image file was uploaded', 400);
+      return;
+    }
+
+    const filename = req.file.filename;
+    const imageUrl = `/api/tasks/images/${filename}`;
+
+    if (req.params.id) {
+      const id = parseInt(req.params.id, 10);
+      if (!isNaN(id)) {
+        await updateTask(id, { image_url: imageUrl });
+      }
+    }
+
+    sendSuccess(
+      res,
+      {
+        image_url: imageUrl,
+        filename,
+        original_name: req.file.originalname,
+        size: req.file.size,
+      },
+      'Task image uploaded successfully',
+      201
+    );
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const serveTaskImage = (
+  req: Request,
+  res: Response,
+  _next: NextFunction
+): void => {
+  const filename = path.basename(req.params.filename);
+  const filePath = path.join(getTaskImagesRoot(), filename);
+  if (!fs.existsSync(filePath)) {
+    sendError(res, 'Image not found', 404);
+    return;
+  }
+  res.sendFile(filePath);
 };
 
 export const moveTask = async (
@@ -166,6 +230,19 @@ export const deleteExistingTask = async (
     if (!existing) {
       sendError(res, 'Task not found', 404);
       return;
+    }
+
+    // If task had an image on disk, clean it up safely
+    if (existing.image_url && existing.image_url.startsWith('/api/tasks/images/')) {
+      const filename = path.basename(existing.image_url);
+      const filePath = path.join(getTaskImagesRoot(), filename);
+      if (fs.existsSync(filePath)) {
+        try {
+          fs.unlinkSync(filePath);
+        } catch {
+          // ignore
+        }
+      }
     }
 
     await deleteTask(id);

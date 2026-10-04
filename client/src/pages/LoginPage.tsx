@@ -2,18 +2,24 @@ import React, { useState } from 'react';
 import {
   Container,
   Paper,
-  Text,
+  Tabs,
   TextInput,
   PasswordInput,
   Button,
-  Tabs,
+  Title,
+  Text,
   Stack,
-  Group,
-  Box,
-  Badge,
   Divider,
+  Box,
 } from '@mantine/core';
-import { Layers, Lock, Mail, User, ArrowRight, ShieldCheck, Zap } from 'lucide-react';
+import {
+  Mail,
+  Lock,
+  User,
+  ArrowRight,
+  ShieldCheck,
+  Layers,
+} from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
@@ -26,10 +32,11 @@ export const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
 
-  // Form states
-  const [loginEmail, setLoginEmail] = useState('');
-  const [loginPassword, setLoginPassword] = useState('');
+  // Login form
+  const [loginEmail, setLoginEmail] = useState('alex@freelancer.io');
+  const [loginPassword, setLoginPassword] = useState('password123');
 
+  // Register form
   const [registerName, setRegisterName] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
@@ -40,14 +47,14 @@ export const LoginPage: React.FC = () => {
     try {
       await login(loginEmail, loginPassword);
       notifications.show({
-        title: 'Welcome Back',
-        message: 'Successfully logged in to ProjectForge',
-        color: 'teal',
+        title: 'Welcome back',
+        message: 'Successfully signed in to WorkForge',
+        color: 'gray',
       });
       navigate('/');
     } catch (err: any) {
       notifications.show({
-        title: 'Login Error',
+        title: 'Authentication Failed',
         message: err.message || 'Invalid email or password',
         color: 'red',
       });
@@ -63,8 +70,8 @@ export const LoginPage: React.FC = () => {
       await register(registerName, registerEmail, registerPassword);
       notifications.show({
         title: 'Account Created',
-        message: 'Welcome to ProjectForge!',
-        color: 'teal',
+        message: 'Welcome to WorkForge!',
+        color: 'gray',
       });
       navigate('/');
     } catch (err: any) {
@@ -85,7 +92,7 @@ export const LoginPage: React.FC = () => {
       notifications.show({
         title: 'Demo Session Active',
         message: 'Logged in as Alex Rivers (Freelance Lead)',
-        color: 'indigo',
+        color: 'gray',
       });
       navigate('/');
     } catch (err: any) {
@@ -101,32 +108,32 @@ export const LoginPage: React.FC = () => {
 
   return (
     <Container size="xs" py={60}>
-      <Stack align="center" gap="sm" mb="xl">
+      <Stack align="center" gap="xs" mb="xl">
         <Box
           style={{
             width: 48,
             height: 48,
-            borderRadius: 12,
-            background: 'linear-gradient(135deg, #4f46e5 0%, #6366f1 100%)',
+            borderRadius: 14,
+            background: 'linear-gradient(135deg, #14a800 0%, #108a00 100%)',
+            color: '#ffffff',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: '#ffffff',
-            boxShadow: '0 8px 24px rgba(99, 102, 241, 0.4)',
+            boxShadow: '0 8px 20px rgba(20, 168, 0, 0.28)',
           }}
         >
-          <Layers size={24} />
+          <Layers size={26} strokeWidth={2.4} />
         </Box>
-        <Text fw={800} size="xl" style={{ letterSpacing: '-0.5px' }}>
-          ProjectForge
+        <Title order={2} fw={800} style={{ letterSpacing: '-0.5px' }}>
+          WorkForge
+        </Title>
+        <Text size="xs" c="dimmed">
+          Project Management & Collaboration Suite
         </Text>
-        <Badge variant="light" color="indigo" size="sm">
-          Freelancers & Independent Agencies
-        </Badge>
       </Stack>
 
-      <Paper withBorder shadow="md" p="xl" radius="md">
-        <Tabs value={tab} onChange={setTab} color="indigo">
+      <Paper withBorder shadow="sm" p="xl" radius="lg" style={{ backgroundColor: 'var(--bg-card)' }}>
+        <Tabs value={tab} onChange={setTab} color="green">
           <Tabs.List grow mb="lg">
             <Tabs.Tab value="login" fw={600}>
               Sign In
@@ -142,6 +149,7 @@ export const LoginPage: React.FC = () => {
                 <TextInput
                   label="Email"
                   placeholder="alex@freelancer.io"
+                  
                   leftSection={<Mail size={16} />}
                   required
                   value={loginEmail}
@@ -160,7 +168,8 @@ export const LoginPage: React.FC = () => {
                 <Button
                   type="submit"
                   fullWidth
-                  color="indigo"
+                  color="green"
+                  radius="xl"
                   loading={loading}
                   rightSection={<ArrowRight size={16} />}
                 >
@@ -203,7 +212,8 @@ export const LoginPage: React.FC = () => {
                 <Button
                   type="submit"
                   fullWidth
-                  color="indigo"
+                  color="green"
+                  radius="xl"
                   loading={loading}
                   rightSection={<ArrowRight size={16} />}
                 >
@@ -218,10 +228,10 @@ export const LoginPage: React.FC = () => {
 
         <Button
           fullWidth
-          variant="light"
-          color="indigo"
+          variant="default"
+          radius="xl"
           loading={demoLoading}
-          leftSection={<ShieldCheck size={16} />}
+          leftSection={<ShieldCheck size={16} color="var(--accent-primary)" />}
           onClick={handleDemo}
         >
           1-Click Demo Login (Alex Rivers)

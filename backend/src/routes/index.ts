@@ -5,10 +5,12 @@ import { projectRouter } from './project.routes';
 import { taskRouter } from './task.routes';
 import { assetRouter } from './asset.routes';
 import { portalRouter } from './portal.routes';
+import { userRouter } from './user.routes';
 
 export const apiRouter = Router();
 
 apiRouter.use('/auth', authRouter);
+apiRouter.use('/users', userRouter);
 apiRouter.use('/clients', clientRouter);
 apiRouter.use('/projects', projectRouter);
 apiRouter.use('/tasks', taskRouter);

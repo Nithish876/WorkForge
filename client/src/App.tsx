@@ -20,6 +20,7 @@ import { DashboardPage } from './pages/DashboardPage';
 import { ClientsPage } from './pages/ClientsPage';
 import { ProjectDetailPage } from './pages/ProjectDetailPage';
 import { ClientPortalPage } from './pages/ClientPortalPage';
+import { ProfilePage } from './pages/ProfilePage';
 import { NewProjectModal } from './components/NewProjectModal';
 import { NewClientModal } from './components/NewClientModal';
 
@@ -124,7 +125,7 @@ const ProtectedLayout: React.FC = () => {
   if (isLoading) {
     return (
       <Center mih="100vh">
-        <Loader size="lg" color="indigo" />
+        <Loader size="lg" color="dark" />
       </Center>
     );
   }
@@ -206,6 +207,14 @@ const ProtectedLayout: React.FC = () => {
               />
             }
           />
+          <Route
+            path="/profile"
+            element={<ProfilePage />}
+          />
+          <Route
+            path="/profile/:id"
+            element={<ProfilePage />}
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AppShell.Main>
@@ -235,8 +244,11 @@ export const App: React.FC = () => {
       <AuthProvider>
         <BrowserRouter>
           <Routes>
-            {/* Zero-login Client Portal Route (Accessible without freelancer login) */}
+            {/* Zero-login Client Portal Route */}
             <Route path="/portal/:token" element={<ClientPortalPage />} />
+
+            {/* Public Profile Route */}
+            <Route path="/u/:id" element={<ProfilePage />} />
 
             {/* Freelancer Login Route */}
             <Route path="/login" element={<LoginPage />} />

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   DragDropContext,
   Droppable,
@@ -16,6 +16,7 @@ import {
   Card,
   Button,
   Box,
+  Image,
   useMantineColorScheme,
 } from '@mantine/core';
 import {
@@ -24,11 +25,7 @@ import {
   Eye,
   EyeOff,
   Trash2,
-  Edit2,
-  Clock,
-  AlertCircle,
-  CheckCircle2,
-  CheckCircle,
+  ImageIcon,
 } from 'lucide-react';
 import { Task, TaskStatus, TaskPriority } from '../types';
 import { api } from '../api/client';
@@ -46,18 +43,17 @@ interface ColumnDef {
   id: TaskStatus;
   title: string;
   color: string;
-  badgeVariant: 'light' | 'filled' | 'outline';
 }
 
 const COLUMNS: ColumnDef[] = [
-  { id: 'todo', title: 'To Do', color: 'gray', badgeVariant: 'light' },
-  { id: 'in_progress', title: 'In Progress', color: 'indigo', badgeVariant: 'light' },
-  { id: 'review', title: 'Under Review', color: 'orange', badgeVariant: 'light' },
-  { id: 'done', title: 'Done', color: 'teal', badgeVariant: 'light' },
+  { id: 'todo', title: 'To Do', color: 'gray' },
+  { id: 'in_progress', title: 'In Progress', color: 'green' },
+  { id: 'review', title: 'Under Review', color: 'yellow' },
+  { id: 'done', title: 'Done', color: 'green' },
 ];
 
 export const KanbanBoard: React.FC<KanbanBoardProps> = ({
-  projectId,
+  projectId: _projectId,
   tasks,
   onTasksChange,
   onOpenTaskModal,
@@ -73,7 +69,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
       case 'medium':
         return 'yellow';
       case 'low':
-        return 'teal';
+        return 'gray';
       default:
         return 'gray';
     }
@@ -91,7 +87,6 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     }
 
     const taskId = parseInt(draggableId, 10);
-    const sourceStatus = source.droppableId as TaskStatus;
     const destStatus = destination.droppableId as TaskStatus;
 
     // Clone tasks array
@@ -102,33 +97,30 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
     const [movedTask] = newTasks.splice(draggedTaskIndex, 1);
     movedTask.status = destStatus;
 
-    // Get all tasks in destination column
+    // Destination column tasks
     const destTasks = newTasks.filter((t) => t.status === destStatus);
     destTasks.splice(destination.index, 0, movedTask);
 
-    // Re-index sort_order for destination tasks
+    // Update sort_order for destination tasks
     destTasks.forEach((t, idx) => {
       t.sort_order = idx;
     });
 
-    // Recombine all tasks
     const otherTasks = newTasks.filter((t) => t.status !== destStatus);
-    const updatedFullList = [...otherTasks, ...destTasks];
+    const reorderedTasks = [...otherTasks, ...destTasks];
 
-    // Optimistic UI update
-    onTasksChange(updatedFullList);
+    onTasksChange(reorderedTasks);
 
     try {
-      await api.patch(`/tasks/${taskId}/move`, {
-        newStatus: destStatus,
-        newSortOrder: destination.index,
+      await api.patch(`/tasks/${taskId}`, {
+        status: destStatus,
+        sort_order: destination.index,
       });
-    } catch (err: any) {
-      // Revert if API fails
+    } catch {
       onTasksChange(tasks);
       notifications.show({
-        title: 'Move Failed',
-        message: 'Could not sync task movement with the server',
+        title: 'Error',
+        message: 'Failed to update task status on server',
         color: 'red',
       });
     }
@@ -153,7 +145,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
         message: updatedVisible
           ? 'Task is now visible on the Client Portal'
           : 'Task is now hidden from the Client Portal',
-        color: updatedVisible ? 'teal' : 'gray',
+        color: 'gray',
         autoClose: 2000,
       });
     } catch {
@@ -190,9 +182,10 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                 <Paper
                   withBorder
                   p="sm"
-                  radius="md"
+                  radius="lg"
                   style={{
-                    backgroundColor: isDark ? '#1e293b' : '#f1f5f9',
+                    backgroundColor: 'var(--bg-surface)',
+                    borderColor: 'var(--border-subtle)',
                     height: '100%',
                     display: 'flex',
                     flexDirection: 'column',
@@ -200,7 +193,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                 >
                   <Group justify="space-between" mb="xs">
                     <Group gap="xs">
-                      <Badge color={col.color} variant="filled" size="sm">
+                      <Badge color={col.color} variant={col.id === 'in_progress' ? 'filled' : 'light'} size="xs" radius="xl">
                         {columnTasks.length}
                       </Badge>
                       <Text fw={700} size="sm">
@@ -211,6 +204,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                     <ActionIcon
                       variant="subtle"
                       size="sm"
+                      radius="xl"
                       color="gray"
                       onClick={() => onOpenTaskModal(undefined, col.id)}
                     >
@@ -228,11 +222,9 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                           flex: 1,
                           minHeight: 350,
                           backgroundColor: snapshot.isDraggingOver
-                            ? isDark
-                              ? 'rgba(99, 102, 241, 0.12)'
-                              : 'rgba(99, 102, 241, 0.08)'
+                            ? 'rgba(20, 168, 0, 0.08)'
                             : 'transparent',
-                          borderRadius: 8,
+                          borderRadius: 12,
                           padding: 4,
                           transition: 'background-color 0.2s ease',
                         }}
@@ -249,30 +241,50 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                                 {...dragProvided.draggableProps}
                                 {...dragProvided.dragHandleProps}
                                 withBorder
-                                radius="md"
+                                radius="lg"
                                 p="sm"
                                 shadow={dragSnapshot.isDragging ? 'lg' : 'xs'}
                                 className="kanban-card"
                                 style={{
                                   ...dragProvided.draggableProps.style,
-                                  backgroundColor: isDark ? '#0f172a' : '#ffffff',
+                                  backgroundColor: 'var(--bg-card)',
                                   borderColor: dragSnapshot.isDragging
-                                    ? '#6366f1'
-                                    : isDark
-                                    ? '#334155'
-                                    : '#e2e8f0',
+                                    ? 'var(--accent-primary)'
+                                    : 'var(--border-subtle)',
                                   cursor: 'grab',
+                                  overflow: 'hidden',
                                 }}
                                 onClick={() => onOpenTaskModal(task)}
                               >
+                                {task.image_url && (
+                                  <Card.Section mb="sm">
+                                    <Image
+                                      src={task.image_url}
+                                      height={125}
+                                      alt={task.title}
+                                      fit="cover"
+                                      fallbackSrc="https://placehold.co/600x300/18181b/ffffff?text=Task+Image"
+                                    />
+                                  </Card.Section>
+                                )}
+
                                 <Group justify="space-between" align="flex-start" mb={6}>
-                                  <Badge
-                                    size="xs"
-                                    variant="light"
-                                    color={getPriorityColor(task.priority)}
-                                  >
-                                    {task.priority.toUpperCase()}
-                                  </Badge>
+                                  <Group gap={6}>
+                                    <Badge
+                                      size="xs"
+                                      variant="light"
+                                      color={getPriorityColor(task.priority)}
+                                    >
+                                      {task.priority.toUpperCase()}
+                                    </Badge>
+                                    {task.image_url && (
+                                      <Tooltip label="Image attached">
+                                        <Badge size="xs" variant="outline" color="gray" leftSection={<ImageIcon size={10} />}>
+                                          Image
+                                        </Badge>
+                                      </Tooltip>
+                                    )}
+                                  </Group>
 
                                   <Group gap={4}>
                                     <Tooltip
@@ -285,7 +297,8 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                                       <ActionIcon
                                         size="xs"
                                         variant="subtle"
-                                        color={task.is_client_visible ? 'teal' : 'gray'}
+                                        radius="xl"
+                                        color={task.is_client_visible ? 'green' : 'gray'}
                                         onClick={(e) => handleToggleClientVisibility(task, e)}
                                       >
                                         {task.is_client_visible ? (
@@ -299,6 +312,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                                     <ActionIcon
                                       size="xs"
                                       variant="subtle"
+                                      radius="xl"
                                       color="red"
                                       onClick={(e) => {
                                         e.stopPropagation();
@@ -339,8 +353,8 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                             p="md"
                             style={{
                               textAlign: 'center',
-                              border: `1px dashed ${isDark ? '#334155' : '#cbd5e1'}`,
-                              borderRadius: 8,
+                              border: '1px dashed var(--border-subtle)',
+                              borderRadius: 12,
                               marginTop: 8,
                             }}
                           >
@@ -357,6 +371,7 @@ export const KanbanBoard: React.FC<KanbanBoardProps> = ({
                     variant="subtle"
                     color="gray"
                     size="xs"
+                    radius="xl"
                     leftSection={<Plus size={14} />}
                     mt="xs"
                     fullWidth

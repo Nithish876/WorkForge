@@ -16,7 +16,7 @@ import {
   Plus,
   UserPlus,
   FolderKanban,
-  ExternalLink,
+  UserCircle,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Client } from '../types';
@@ -58,9 +58,10 @@ export const Navbar: React.FC<NavbarProps> = ({
             label="Dashboard & Projects"
             leftSection={<LayoutDashboard size={18} />}
             active={location.pathname === '/' || location.pathname.startsWith('/projects')}
+            color="green"
             onClick={() => handleNav('/')}
             styles={{
-              root: { borderRadius: 8 },
+              root: { borderRadius: 10 },
             }}
           />
 
@@ -68,14 +69,26 @@ export const Navbar: React.FC<NavbarProps> = ({
             label="Clients & Portals"
             leftSection={<Users size={18} />}
             active={location.pathname === '/clients'}
+            color="green"
             onClick={() => handleNav('/clients')}
             rightSection={
-              <Badge size="xs" variant="light" color="indigo">
+              <Badge size="xs" variant="light" color="green" radius="xl">
                 {clients.length}
               </Badge>
             }
             styles={{
-              root: { borderRadius: 8 },
+              root: { borderRadius: 10 },
+            }}
+          />
+
+          <NavLink
+            label="Profile & Portfolio"
+            leftSection={<UserCircle size={18} />}
+            active={location.pathname.startsWith('/profile')}
+            color="green"
+            onClick={() => handleNav('/profile')}
+            styles={{
+              root: { borderRadius: 10 },
             }}
           />
 
@@ -88,7 +101,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             {selectedClientId && (
               <Text
                 size="xs"
-                c="indigo"
+                c="green"
+                fw={600}
                 style={{ cursor: 'pointer' }}
                 onClick={() => onSelectClient?.(undefined)}
               >
@@ -101,11 +115,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             label="All Clients"
             leftSection={<FolderKanban size={16} />}
             active={selectedClientId === undefined && location.pathname === '/'}
+            color="green"
             onClick={() => {
               onSelectClient?.(undefined);
               handleNav('/');
             }}
-            styles={{ root: { borderRadius: 6 } }}
+            styles={{ root: { borderRadius: 8 } }}
           />
 
           {clients.map((c) => (
@@ -114,28 +129,30 @@ export const Navbar: React.FC<NavbarProps> = ({
               label={c.name}
               description={c.company || undefined}
               active={selectedClientId === c.id}
+              color="green"
               onClick={() => {
                 onSelectClient?.(c.id);
                 handleNav('/');
               }}
               rightSection={
-                <Badge size="xs" variant="outline">
+                <Badge size="xs" variant="outline" color="green" radius="xl">
                   {c.project_count || 0}
                 </Badge>
               }
-              styles={{ root: { borderRadius: 6 } }}
+              styles={{ root: { borderRadius: 8 } }}
             />
           ))}
         </Stack>
       </ScrollArea>
 
-      <Box pt="xs" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+      <Box pt="xs" style={{ borderTop: '1px solid var(--border-subtle)' }}>
         <Stack gap="xs">
           <Button
             leftSection={<Plus size={16} />}
             fullWidth
             variant="filled"
-            color="indigo"
+            color="green"
+            radius="xl"
             onClick={() => {
               onOpenNewProject();
               if (onCloseMobileDrawer) onCloseMobileDrawer();
@@ -147,7 +164,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             leftSection={<UserPlus size={16} />}
             fullWidth
             variant="light"
-            color="indigo"
+            color="green"
+            radius="xl"
             onClick={() => {
               onOpenNewClient();
               if (onCloseMobileDrawer) onCloseMobileDrawer();

@@ -67,7 +67,7 @@ export const GitHubTimeline: React.FC<GitHubTimelineProps> = ({ projectId, githu
   if (loading) {
     return (
       <Center p="xl">
-        <Loader size="md" color="indigo" />
+        <Loader size="md" color="dark" />
       </Center>
     );
   }
@@ -88,8 +88,7 @@ export const GitHubTimeline: React.FC<GitHubTimelineProps> = ({ projectId, githu
         </Box>
 
         <Button
-          variant="light"
-          color="indigo"
+          variant="default"
           size="xs"
           leftSection={<RefreshCw size={14} />}
           onClick={fetchCommits}
@@ -108,7 +107,7 @@ export const GitHubTimeline: React.FC<GitHubTimelineProps> = ({ projectId, githu
           No commits recorded yet in this repository.
         </Text>
       ) : (
-        <Timeline active={commits.length} bulletSize={24} lineWidth={2} color="indigo">
+        <Timeline active={commits.length} bulletSize={24} lineWidth={2} color="dark">
           {commits.map((c) => {
             let timeAgo = '';
             try {
@@ -126,7 +125,7 @@ export const GitHubTimeline: React.FC<GitHubTimelineProps> = ({ projectId, githu
                     <Text size="sm" fw={600}>
                       {c.message}
                     </Text>
-                    <Badge size="xs" variant="outline" color="indigo">
+                    <Badge size="xs" variant="outline" color="dark">
                       {c.sha}
                     </Badge>
                   </Group>
@@ -141,7 +140,7 @@ export const GitHubTimeline: React.FC<GitHubTimelineProps> = ({ projectId, githu
                     target="_blank"
                     rel="noreferrer"
                     size="xs"
-                    c="indigo"
+                    c="dimmed"
                     style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
                   >
                     View Commit <ExternalLink size={12} />

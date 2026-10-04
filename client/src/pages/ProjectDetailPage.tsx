@@ -30,6 +30,9 @@ import {
   FolderGit2,
   ArrowLeft,
   Trash2,
+  Users,
+  Globe,
+  Lock,
 } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Project, Task, Asset, Client, TaskStatus, TaskPriority, ProjectStatus } from '../types';
@@ -38,6 +41,7 @@ import { KanbanBoard } from '../components/KanbanBoard';
 import { GitHubTimeline } from '../components/GitHubTimeline';
 import { AssetVault } from '../components/AssetVault';
 import { TaskModal } from '../components/TaskModal';
+import { CollaboratorsModal } from '../components/CollaboratorsModal';
 import { notifications } from '@mantine/notifications';
 
 interface ProjectDetailPageProps {
@@ -65,6 +69,9 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
   const [taskModalOpened, setTaskModalOpened] = useState<boolean>(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [defaultTaskStatus, setDefaultTaskStatus] = useState<TaskStatus>('todo');
+
+  // Collaborators Modal state
+  const [collaboratorsModalOpened, setCollaboratorsModalOpened] = useState<boolean>(false);
 
   const fetchProjectData = async () => {
     if (isNaN(projectId)) return;
@@ -99,6 +106,25 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
   useEffect(() => {
     fetchProjectData();
   }, [projectId]);
+
+  const handleTogglePublic = async () => {
+    if (!project) return;
+    const newPublic = !project.is_public;
+    setProject({ ...project, is_public: newPublic });
+    try {
+      await api.patch(`/projects/${project.id}`, { is_public: newPublic });
+      onProjectUpdated();
+      notifications.show({
+        title: newPublic ? 'Project Made Public' : 'Project Made Private',
+        message: newPublic
+          ? 'This project will now appear on your public profile showcase.'
+          : 'This project is now private and only accessible to collaborators and client.',
+        color: newPublic ? 'green' : 'yellow',
+      });
+    } catch {
+      fetchProjectData();
+    }
+  };
 
   const handleStatusChange = async (newStatus: ProjectStatus) => {
     if (!project) return;
@@ -201,7 +227,7 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
   if (loading) {
     return (
       <Center p={80}>
-        <Loader size="lg" color="indigo" />
+        <Loader size="lg" color="green" />
       </Center>
     );
   }
@@ -212,7 +238,7 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
         <Text size="lg" fw={700}>
           Project Not Found
         </Text>
-        <Button mt="md" variant="light" color="indigo" onClick={() => navigate('/')}>
+        <Button mt="md" variant="light" color="green" onClick={() => navigate('/')}>
           Return to Dashboard
         </Button>
       </Paper>
@@ -236,6 +262,7 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
             variant="subtle"
             color="gray"
             size="xs"
+            radius="xl"
             leftSection={<ArrowLeft size={14} />}
             onClick={() => navigate('/')}
             mb={6}
@@ -243,10 +270,29 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
             All Projects
           </Button>
 
-          <Group gap="xs" mb={4}>
+          <Group gap="xs" mb={4} wrap="wrap">
             <Title order={2} fw={800} style={{ letterSpacing: '-0.5px' }}>
               {project.title}
             </Title>
+            <Tooltip
+              label={
+                project.is_public
+                  ? 'Visible on public profile showcase. Click to make Private.'
+                  : 'Private project (only owner, team & client can access). Click to make Public.'
+              }
+            >
+              <Badge
+                size="sm"
+                variant="light"
+                radius="xl"
+                color={project.is_public ? 'green' : 'yellow'}
+                leftSection={project.is_public ? <Globe size={12} /> : <Lock size={12} />}
+                style={{ cursor: 'pointer' }}
+                onClick={handleTogglePublic}
+              >
+                {project.is_public ? 'PUBLIC' : 'PRIVATE'}
+              </Badge>
+            </Tooltip>
             <Select
               size="xs"
               data={[
@@ -260,10 +306,10 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
             />
           </Group>
 
-          <Group gap="md">
+          <Group gap="md" wrap="wrap">
             <Text size="sm" c="dimmed">
               Client:{' '}
-              <Text span fw={600} c="indigo">
+              <Text span fw={600} style={{ color: 'var(--text-primary)' }}>
                 {project.client_name || client?.name}
               </Text>
               {(project.client_company || client?.company) && ` (${project.client_company || client?.company})`}
@@ -286,20 +332,30 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
         </Box>
 
         <Group gap="xs">
+          <Button
+            variant="default"
+            size="sm"
+            radius="xl"
+            leftSection={<Users size={15} />}
+            onClick={() => setCollaboratorsModalOpened(true)}
+          >
+            Team {project.collaborators_count ? `(${project.collaborators_count})` : ''}
+          </Button>
+
           {portalUrl && (
             <CopyButton value={portalUrl} timeout={2000}>
               {({ copied, copy }) => (
                 <Button
-                  variant="light"
-                  color={copied ? 'teal' : 'indigo'}
+                  variant="default"
                   size="sm"
-                  leftSection={copied ? <Check size={16} /> : <Share2 size={16} />}
+                  radius="xl"
+                  leftSection={copied ? <Check size={16} color="var(--accent-primary)" /> : <Share2 size={16} />}
                   onClick={() => {
                     copy();
                     notifications.show({
                       title: 'Client Portal Link Copied',
                       message: 'Share this link with your client for zero-login view',
-                      color: 'teal',
+                      color: 'green',
                     });
                   }}
                 >
@@ -314,6 +370,7 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
               <ActionIcon
                 variant="default"
                 size="lg"
+                radius="xl"
                 onClick={() => window.open(portalUrl, '_blank')}
               >
                 <ExternalLink size={18} />
@@ -326,6 +383,7 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
               variant="subtle"
               color="red"
               size="lg"
+              radius="xl"
               onClick={handleDeleteProject}
             >
               <Trash2 size={18} />
@@ -335,25 +393,25 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
       </Group>
 
       {/* Quick Progress Banner */}
-      <Paper withBorder p="sm" radius="md">
+      <Paper withBorder p="md" radius="lg" style={{ backgroundColor: 'var(--bg-card)' }}>
         <Group justify="space-between" mb={6}>
           <Text size="xs" fw={700} c="dimmed">
             Overall Project Health
           </Text>
-          <Text size="xs" fw={700} c="indigo">
+          <Text size="xs" fw={700}>
             {progressPct}% ({completedCount}/{tasks.length} tasks completed)
           </Text>
         </Group>
-        <Progress value={progressPct} color="indigo" radius="xl" size="md" />
+        <Progress value={progressPct} color="green" radius="xl" size="sm" />
       </Paper>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onChange={setActiveTab} color="indigo">
+      <Tabs value={activeTab} onChange={setActiveTab} color="green">
         <Tabs.List mb="md">
           <Tabs.Tab
             value="board"
             leftSection={<KanbanSquare size={16} />}
-            rightSection={<Badge size="xs" variant="light">{tasks.length}</Badge>}
+            rightSection={<Badge size="xs" variant="outline" color="green" radius="xl">{tasks.length}</Badge>}
           >
             Kanban Board
           </Tabs.Tab>
@@ -368,7 +426,7 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
           <Tabs.Tab
             value="assets"
             leftSection={<UploadCloud size={16} />}
-            rightSection={<Badge size="xs" variant="light">{assets.length}</Badge>}
+            rightSection={<Badge size="xs" variant="outline" color="green" radius="xl">{assets.length}</Badge>}
           >
             Deliverables & Assets
           </Tabs.Tab>
@@ -408,6 +466,16 @@ export const ProjectDetailPage: React.FC<ProjectDetailPageProps> = ({
         onSubmit={handleSaveTask}
         task={editingTask}
         defaultStatus={defaultTaskStatus}
+      />
+
+      {/* Collaborators Management Modal */}
+      <CollaboratorsModal
+        opened={collaboratorsModalOpened}
+        onClose={() => setCollaboratorsModalOpened(false)}
+        projectId={project.id}
+        projectTitle={project.title}
+        isOwner={project.user_role === 'owner' || !project.user_role}
+        onCollaboratorChange={fetchProjectData}
       />
     </Stack>
   );

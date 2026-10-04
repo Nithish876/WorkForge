@@ -55,7 +55,7 @@ export const NewClientModal: React.FC<NewClientModalProps> = ({
       opened={opened}
       onClose={onClose}
       title={<Text fw={700}>Add New Client</Text>}
-      radius="md"
+      radius="lg"
       size="md"
     >
       <form onSubmit={handleSubmit}>
@@ -86,8 +86,8 @@ export const NewClientModal: React.FC<NewClientModalProps> = ({
           <Alert
             icon={<ShieldCheck size={16} />}
             title="Cryptographic Share Token"
-            color="indigo"
-            radius="md"
+            color="green"
+            radius="lg"
             variant="light"
           >
             A 64-character unique cryptographic token will be automatically generated.
@@ -95,10 +95,10 @@ export const NewClientModal: React.FC<NewClientModalProps> = ({
           </Alert>
 
           <Group justify="flex-end" mt="md">
-            <Button variant="default" onClick={onClose}>
+            <Button variant="default" radius="xl" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" color="indigo" loading={submitting}>
+            <Button type="submit" color="green" radius="xl" loading={submitting}>
               Add Client
             </Button>
           </Group>

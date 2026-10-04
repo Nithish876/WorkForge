@@ -206,7 +206,7 @@ export const AssetVault: React.FC<AssetVaultProps> = ({
                       <Badge
                         size="xs"
                         variant="light"
-                        color={asset.uploaded_by === 'client' ? 'teal' : 'indigo'}
+                        color={asset.uploaded_by === 'client' ? 'blue' : 'green'}
                       >
                         {asset.uploaded_by.toUpperCase()}
                       </Badge>
@@ -220,8 +220,7 @@ export const AssetVault: React.FC<AssetVaultProps> = ({
                       <Group gap={6} justify="flex-end">
                         <Tooltip label="Download file">
                           <ActionIcon
-                            variant="light"
-                            color="indigo"
+                            variant="default"
                             size="sm"
                             onClick={() => handleDownload(asset)}
                           >

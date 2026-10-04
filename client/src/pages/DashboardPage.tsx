@@ -10,7 +10,6 @@ import {
   SimpleGrid,
   Paper,
   Box,
-  Badge,
   Loader,
   Center,
 } from '@mantine/core';
@@ -21,7 +20,6 @@ import {
   KanbanSquare,
   CheckCircle2,
   Users,
-  Filter,
   Layers,
 } from 'lucide-react';
 import { Project, Client } from '../types';
@@ -71,7 +69,7 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   if (loading) {
     return (
       <Center p={80}>
-        <Loader size="lg" color="indigo" />
+        <Loader size="lg" color="green" />
       </Center>
     );
   }
@@ -81,17 +79,18 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
       {/* Top Header */}
       <Group justify="space-between" align="center" wrap="wrap">
         <Box>
-          <Title order={2} fw={800} style={{ letterSpacing: '-0.5px' }}>
+          <Title order={2} fw={700} style={{ letterSpacing: '-0.5px' }}>
             Projects Dashboard
           </Title>
           <Text size="sm" c="dimmed">
-            Manage client deliverables, Kanban sprints, and GitHub repositories
+            Manage deliverables, collaborator teams, and GitHub activity
           </Text>
         </Box>
 
         <Button
           leftSection={<Plus size={16} />}
-          color="indigo"
+          color="green"
+          radius="xl"
           onClick={onOpenNewProject}
         >
           New Project
@@ -100,117 +99,117 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
       {/* Stats Cards */}
       <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="md">
-        <Paper withBorder p="md" radius="md">
+        <Paper withBorder p="md" radius="lg" style={{ backgroundColor: 'var(--bg-card)' }}>
           <Group justify="space-between">
             <Box>
               <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                 Active Projects
               </Text>
-              <Text fw={800} size="xl" mt={4}>
+              <Text fw={700} size="xl" mt={4}>
                 {activeProjects.length}
               </Text>
             </Box>
             <Box
               style={{
-                width: 36,
-                height: 36,
-                borderRadius: 8,
-                backgroundColor: 'rgba(99, 102, 241, 0.12)',
+                width: 38,
+                height: 38,
+                borderRadius: 12,
+                backgroundColor: 'rgba(20, 168, 0, 0.12)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#6366f1',
+                color: 'var(--accent-primary)',
               }}
             >
-              <Briefcase size={20} />
+              <Briefcase size={18} />
             </Box>
           </Group>
         </Paper>
 
-        <Paper withBorder p="md" radius="md">
+        <Paper withBorder p="md" radius="lg" style={{ backgroundColor: 'var(--bg-card)' }}>
           <Group justify="space-between">
             <Box>
               <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                 Total Tasks
               </Text>
-              <Text fw={800} size="xl" mt={4}>
+              <Text fw={700} size="xl" mt={4}>
                 {totalTasks}
               </Text>
             </Box>
             <Box
               style={{
-                width: 36,
-                height: 36,
-                borderRadius: 8,
-                backgroundColor: 'rgba(59, 130, 246, 0.12)',
+                width: 38,
+                height: 38,
+                borderRadius: 12,
+                backgroundColor: 'rgba(20, 168, 0, 0.12)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#3b82f6',
+                color: 'var(--accent-primary)',
               }}
             >
-              <KanbanSquare size={20} />
+              <KanbanSquare size={18} />
             </Box>
           </Group>
         </Paper>
 
-        <Paper withBorder p="md" radius="md">
+        <Paper withBorder p="md" radius="lg" style={{ backgroundColor: 'var(--bg-card)' }}>
           <Group justify="space-between">
             <Box>
               <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                 Completion Rate
               </Text>
-              <Text fw={800} size="xl" mt={4}>
+              <Text fw={700} size="xl" mt={4}>
                 {avgCompletion}%
               </Text>
             </Box>
             <Box
               style={{
-                width: 36,
-                height: 36,
-                borderRadius: 8,
-                backgroundColor: 'rgba(16, 185, 129, 0.12)',
+                width: 38,
+                height: 38,
+                borderRadius: 12,
+                backgroundColor: 'rgba(20, 168, 0, 0.12)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#10b981',
+                color: 'var(--accent-primary)',
               }}
             >
-              <CheckCircle2 size={20} />
+              <CheckCircle2 size={18} />
             </Box>
           </Group>
         </Paper>
 
-        <Paper withBorder p="md" radius="md">
+        <Paper withBorder p="md" radius="lg" style={{ backgroundColor: 'var(--bg-card)' }}>
           <Group justify="space-between">
             <Box>
               <Text size="xs" c="dimmed" fw={700} tt="uppercase">
                 Active Clients
               </Text>
-              <Text fw={800} size="xl" mt={4}>
+              <Text fw={700} size="xl" mt={4}>
                 {clients.length}
               </Text>
             </Box>
             <Box
               style={{
-                width: 36,
-                height: 36,
-                borderRadius: 8,
-                backgroundColor: 'rgba(245, 158, 11, 0.12)',
+                width: 38,
+                height: 38,
+                borderRadius: 12,
+                backgroundColor: 'rgba(20, 168, 0, 0.12)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#f59e0b',
+                color: 'var(--accent-primary)',
               }}
             >
-              <Users size={20} />
+              <Users size={18} />
             </Box>
           </Group>
         </Paper>
       </SimpleGrid>
 
       {/* Filters and Search Bar */}
-      <Paper withBorder p="sm" radius="md">
+      <Paper withBorder p="sm" radius="lg" style={{ backgroundColor: 'var(--bg-surface)' }}>
         <Group justify="space-between" wrap="wrap" gap="md">
           <TextInput
             placeholder="Search projects by title, scope, client..."
@@ -251,8 +250,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
 
       {/* Projects Grid */}
       {filteredProjects.length === 0 ? (
-        <Paper withBorder p={50} radius="md" style={{ textAlign: 'center' }}>
-          <Layers size={48} style={{ opacity: 0.3, margin: '0 auto 16px' }} />
+        <Paper withBorder p={50} radius="lg" style={{ textAlign: 'center' }}>
+          <Layers size={40} style={{ opacity: 0.3, margin: '0 auto 16px', color: 'var(--accent-primary)' }} />
           <Title order={4} mb={4}>
             No projects found
           </Title>
@@ -263,7 +262,8 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
           </Text>
           <Button
             leftSection={<Plus size={16} />}
-            color="indigo"
+            color="green"
+            radius="xl"
             onClick={onOpenNewProject}
           >
             Create First Project

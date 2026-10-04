@@ -8,6 +8,7 @@ import {
   Group,
   Stack,
   Text,
+  Switch,
 } from '@mantine/core';
 import { Client, ProjectStatus } from '../types';
 
@@ -22,6 +23,7 @@ interface NewProjectModalProps {
     github_repo: string;
     status: ProjectStatus;
     deadline?: string | null;
+    is_public?: boolean;
   }) => Promise<void>;
   onOpenNewClient: () => void;
 }
@@ -41,6 +43,7 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
   const [githubRepo, setGithubRepo] = useState('');
   const [status, setStatus] = useState<ProjectStatus>('active');
   const [deadline, setDeadline] = useState('');
+  const [isPublic, setIsPublic] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -56,35 +59,34 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
         github_repo: githubRepo.trim(),
         status,
         deadline: deadline || null,
+        is_public: isPublic,
       });
+      // Reset form
       setTitle('');
       setDescription('');
       setGithubRepo('');
+      setStatus('active');
       setDeadline('');
+      setIsPublic(true);
       onClose();
     } finally {
       setSubmitting(false);
     }
   };
 
-  const clientSelectData = clients.map((c) => ({
-    value: String(c.id),
-    label: `${c.name} ${c.company ? `(${c.company})` : ''}`,
-  }));
-
   return (
     <Modal
       opened={opened}
       onClose={onClose}
       title={<Text fw={700}>Create New Project</Text>}
-      radius="md"
       size="md"
+      radius="lg"
     >
       <form onSubmit={handleSubmit}>
         <Stack gap="md">
           <TextInput
             label="Project Title"
-            placeholder="e.g. Enterprise Billing Portal"
+            placeholder="e.g. SaaS Analytics Dashboard"
             required
             value={title}
             onChange={(e) => setTitle(e.currentTarget.value)}
@@ -92,9 +94,12 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
 
           <Stack gap={4}>
             <Select
-              label="Client"
+              label="Assigned Client"
               placeholder="Select client"
-              data={clientSelectData}
+              data={clients.map((c) => ({
+                value: String(c.id),
+                label: `${c.name} ${c.company ? `(${c.company})` : ''}`,
+              }))}
               value={clientId}
               onChange={(val) => setClientId(val || '')}
               required
@@ -103,7 +108,8 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
               <Button
                 variant="subtle"
                 size="xs"
-                color="indigo"
+                color="green"
+                radius="xl"
                 onClick={() => {
                   onClose();
                   onOpenNewClient();
@@ -150,11 +156,19 @@ export const NewProjectModal: React.FC<NewProjectModalProps> = ({
             />
           </Group>
 
+          <Switch
+            label="Public Project"
+            description="Display this project in your public profile and portfolio showcase"
+            checked={isPublic}
+            onChange={(e) => setIsPublic(e.currentTarget.checked)}
+            color="green"
+          />
+
           <Group justify="flex-end" mt="md">
-            <Button variant="default" onClick={onClose}>
+            <Button variant="default" radius="xl" onClick={onClose}>
               Cancel
             </Button>
-            <Button type="submit" color="indigo" loading={submitting}>
+            <Button type="submit" color="green" radius="xl" loading={submitting}>
               Create Project
             </Button>
           </Group>
